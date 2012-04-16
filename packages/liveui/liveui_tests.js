@@ -499,6 +499,42 @@ Tinytest.add("liveui - copied attributes", function(test) {
   test.equal(get_checked(), false);
   frag.release();
 
+
+  R = ReactiveVar("apple");
+  frag = WrappedFrag(Meteor.ui.render(function() {
+    return '<input id="foo" type="text" value="' + R.get() + '">';
+  })).hold();
+  var get_value = function() { return frag.node().firstChild.value; };
+  var set_value = function(v) { frag.node().firstChild.value = v; };
+  test.equal(get_value(), "apple");
+  Meteor.flush();
+  test.equal(get_value(), "apple");
+  R.set("");
+  test.equal(get_value(), "apple");
+  Meteor.flush();
+  test.equal(get_value(), "");
+  R.set("pear");
+  test.equal(get_value(), "");
+  Meteor.flush();
+  test.equal(get_value(), "pear");
+  set_value("jerry"); // like user typing
+  R.set("steve");
+  Meteor.flush();
+  test.equal(get_value(), "steve"); // overwrite user typing
+  frag.release();
+  R = ReactiveVar("");
+  frag = WrappedFrag(Meteor.ui.render(function() {
+    return '<input id="foo" type="text" value="' + R.get() + '">';
+  })).hold();
+  test.equal(get_value(), "");
+  Meteor.flush();
+  test.equal(get_value(), "");
+  R.set("tom");
+  test.equal(get_value(), "");
+  Meteor.flush();
+  test.equal(get_value(), "tom");
+  frag.release();
+
 });
 
 Tinytest.add("liveui - bad labels", function(test) {

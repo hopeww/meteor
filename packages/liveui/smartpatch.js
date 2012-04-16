@@ -247,6 +247,10 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
     tgt.mergeAttributes(src);
     if (typeof tgt.checked !== "undefined" || typeof src.checked !== "undefined")
       tgt.checked = src.checked;
+    if (src.nodeName === "INPUT" && src.type === "text") {
+      if (tgt !== document.activeElement)
+        tgt.value = src.value;
+    }
     if (src.name)
       tgt.name = src.name;
 
@@ -264,7 +268,10 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
         } else if (name === "style") {
           tgt.style.cssText = src.style.cssText;
         } else if (name === "class") {
-                  tgt.className = src.className;
+          tgt.className = src.className;
+        } else if (name === "value") {
+          if (tgt !== document.activeElement)
+            tgt.value = src.value;
         } else {
           tgt.setAttribute(name, value);
         }
