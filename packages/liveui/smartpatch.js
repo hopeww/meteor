@@ -214,6 +214,10 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
   var srcAttrs = src.attributes;
   var tgtAttrs = tgt.attributes;
 
+  // Determine whether tgt has focus; works in all browsers
+  // as of FF3, Safari4
+  var target_focused = (tgt === document.activeElement);
+
   // clear current attributes
 
   if (tgt.style.cssText)
@@ -245,19 +249,22 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
   // copy over src's attributes
 
   if (tgt.mergeAttributes) {
+    // IE code path:
 
-    // IE
     tgt.mergeAttributes(src);
-    if (typeof tgt.checked !== "undefined" || typeof src.checked !== "undefined")
+    if (typeof tgt.checked !== "undefined" ||
+        typeof src.checked !== "undefined")
       tgt.checked = src.checked;
     if (src.nodeName === "INPUT" && src.type === "text") {
-      if (tgt !== document.activeElement)
+      if (! target_focused)
         tgt.value = src.value;
     }
     if (src.name)
       tgt.name = src.name;
 
   } else {
+    // non-IE code path:
+
     for(var i=0, L=srcAttrs.length; i<L; i++) {
       var srcA = srcAttrs.item(i);
       if (srcA.specified) {
@@ -273,7 +280,8 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
         } else if (name === "class") {
           tgt.className = src.className;
         } else if (name === "value") {
-          if (tgt !== document.activeElement)
+          // don't set attribute, just overwrite property
+          if (! target_focused)
             tgt.value = src.value;
         } else {
           tgt.setAttribute(name, value);
