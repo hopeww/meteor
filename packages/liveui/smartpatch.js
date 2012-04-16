@@ -233,6 +233,9 @@ Meteor.ui._Patcher._copyAttributes = function(tgt, src) {
       continue; // catches weird "propdescname" in IE 8
     if (name === "id" || name === "type")
       continue;
+    // never delete value attribute, only overwrite the property
+    if (name === "value")
+      continue;
     var possibleExpando = tgt[name];
     if (possibleExpando && typeof possibleExpando === "object")
       continue; // for object properties that surface attributes only in IE
